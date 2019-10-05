@@ -26,6 +26,13 @@ jobs:
             curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
             dep ensure
         fi
+    
+    - name: Run tests
+      run: |
+        cd stringutil
+        go test -v
 
     - name: Build
-      run: go build -v .
+      run: |
+        cd hello
+        go build -v .
