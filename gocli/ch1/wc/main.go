@@ -4,21 +4,21 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"os"
+	"strings"
 )
 
-func count(r io.Reader, countLines bool, countBytes bool) int {
-	// A scanner is used to read text from the a Reader (such as files)
+func count(i []byte, countLines bool, countBytes bool, countWords bool) int {
+	r := strings.NewReader(string(i))
 	scanner := bufio.NewScanner(r)
 
-	// Determine which type of parameter should be counted
 	switch {
+	case countLines:
+		scanner.Split(bufio.ScanLines)
 	case countBytes:
 		scanner.Split(bufio.ScanBytes)
-	case countLines:
-		scanner.Split(bufio.ScanLines) // default operation of scan
-	default:
+	case countWords:
 		scanner.Split(bufio.ScanWords)
 	}
 
@@ -30,12 +30,25 @@ func count(r io.Reader, countLines bool, countBytes bool) int {
 }
 
 func main() {
-	// Defining a boolean flag -l to count lines instead of words
 	lines := flag.Bool("l", false, "Count lines")
-	// Defining a boolean flag -b to count bytes instead of words
+	words := flag.Bool("w", false, "Count words")
 	bytes := flag.Bool("b", false, "Count bytes")
-	// Parsing the flags provided by the user
 	flag.Parse()
+	i, err := ioutil.ReadAll(os.Stdin)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "could not parse input: %v\n", err)
+	}
 
-	fmt.Println(count(os.Stdin, *lines, *bytes))
+	// Default is to count all types
+	if !*lines && !*bytes && !*words {
+		l := count(i, true, *bytes, *words)
+		b := count(i, *lines, true, *words)
+		w := count(i, *lines, *bytes, true)
+		fmt.Printf("\t%d\t%d\t%d\n", l, w, b)
+		return
+	}
+
+	// Count specific type
+	wc := count(i, *lines, *bytes, *words)
+	fmt.Println(wc)
 }
