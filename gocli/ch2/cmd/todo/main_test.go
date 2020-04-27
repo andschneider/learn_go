@@ -26,6 +26,8 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
+	os.Setenv("TODO_FILENAME", fileName)
+
 	fmt.Println("Running tests...")
 	result := m.Run()
 
@@ -76,6 +78,26 @@ func TestTodoCLI(t *testing.T) {
 		}
 
 		expected := fmt.Sprintf("  1: %s\n  2: %s\n", task, task2)
+		if expected != string(out) {
+			t.Errorf("expected %q, got %q instead\n", expected, string(out))
+		}
+	})
+
+	t.Run("DeleteTask", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-delete", "1")
+		if err := cmd.Run(); err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("ListTasks2", func(t *testing.T) {
+		cmd := exec.Command(cmdPath, "-list")
+		out, err := cmd.CombinedOutput()
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		expected := fmt.Sprintf("  1: %s\n", task2)
 		if expected != string(out) {
 			t.Errorf("expected %q, got %q instead\n", expected, string(out))
 		}

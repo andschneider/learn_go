@@ -3,6 +3,5 @@
 
 gocli/ch1/wc/wc
 
-gocli/ch2/cmd/todo/.todo.json
-
-gocli/ch2/cmd/todo/todo
+*.todo.json
+gocli/ch2/todo

@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
+	"text/tabwriter"
 	"time"
 )
 
@@ -43,14 +45,14 @@ func (l *List) Complete(i int) error {
 	return nil
 }
 
-// Delete method deltes a ToDo item from the list
+// Delete method deletes a ToDo item from the list
 func (l *List) Delete(i int) error {
 	ls := *l
 	if i <= 0 || i > len(ls) {
 		return fmt.Errorf("item %d does not exist", i)
 	}
 
-	// Adjusting index fo 0 based index
+	// Adjusting index for 0 based index
 	*l = append(ls[:i-1], ls[i:]...)
 
 	return nil
@@ -85,14 +87,40 @@ func (l *List) Get(filename string) error {
 // String prints out a formatted list
 // Implements the fmt.Stringer interface
 func (l *List) String() string {
-	formatted := ""
+	var formatted strings.Builder
 	for k, t := range *l {
 		prefix := "  "
 		if t.Done {
 			prefix = "X "
 		}
 		// Adjust the item number k to print numbers starting from 1
-		formatted += fmt.Sprintf("%s%d: %s\n", prefix, k+1, t.Task)
+		fmt.Fprintf(&formatted, "%s%d: %s\n", prefix, k+1, t.Task)
 	}
-	return formatted
+	return formatted.String()
+}
+
+// General display function to print tasks
+// v is verbose which will display the created date
+// o is open which will only display tasks that aren't completed
+// Uses tabwriter to display output like a table
+func (l *List) Display(v bool, o bool) {
+	format := "Jan 2 15:04"
+	w := tabwriter.NewWriter(os.Stdout, 8, 8, 1, '\t', 0)
+	for k, t := range *l {
+		prefix := "  "
+		if t.Done {
+			if o {
+				// hide complete
+				continue
+			}
+			prefix = "X "
+		}
+		if v {
+			date := t.CreatedAt.Format(format) // format time to string
+			fmt.Fprintf(w, "%s%d: %s\t%s\n", prefix, k+1, t.Task, date)
+		} else {
+			fmt.Fprintf(w, "%s%d: %s\n", prefix, k+1, t.Task)
+		}
+	}
+	w.Flush()
 }

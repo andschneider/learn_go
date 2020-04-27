@@ -17,9 +17,11 @@ var todoFileName = ".todo.json"
 // getTask function decides where to get the description for a new
 // task from: arguments of STDIN
 func getTask(r io.Reader, args ...string) (string, error) {
+	// if arguments are present, create a task from them
 	if len(args) > 0 {
 		return strings.Join(args, " "), nil
 	}
+	// otherwise read from STDIN
 	s := bufio.NewScanner(r)
 	s.Scan()
 	if err := s.Err(); err != nil {
@@ -34,16 +36,16 @@ func getTask(r io.Reader, args ...string) (string, error) {
 func main() {
 	// Display custom message for CLI
 	flag.Usage = func() {
-		fmt.Fprintf(flag.CommandLine.Output(),
-			"%s tool. Developed for The Pragmatic Bookshelf\n", os.Args[0])
-		fmt.Fprintf(flag.CommandLine.Output(), "Copyright 2020\n")
 		fmt.Fprintln(flag.CommandLine.Output(), "Usage information:")
 		flag.PrintDefaults()
 	}
 	// Parsing command line flags
 	add := flag.Bool("add", false, "Add task to the ToDo list")
 	list := flag.Bool("list", false, "List all tasks")
-	complete := flag.Int("complete", 0, "Item to be completed")
+	finish := flag.Int("finish", 0, "Item to be completed")
+	del := flag.Int("delete", 0, "Item to be deleted")
+	verbose := flag.Bool("v", false, "Verbose output")
+	open := flag.Bool("o", false, "Only show open tasks")
 	flag.Parse()
 
 	if os.Getenv("TODO_FILENAME") != "" {
@@ -56,11 +58,11 @@ func main() {
 	}
 
 	switch {
-	case *list:
-		fmt.Print(l)
-	case *complete > 0:
+	case *verbose || *list:
+		l.Display(*verbose, *open)
+	case *finish > 0:
 		// Complete the given item
-		if err := l.Complete(*complete); err != nil {
+		if err := l.Complete(*finish); err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)
 		}
@@ -79,6 +81,18 @@ func main() {
 			os.Exit(1)
 		}
 		l.Add(t)
+
+		// Save the new list
+		if err := l.Save(todoFileName); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	case *del > 0:
+		// Delete the given item
+		if err := l.Delete(*del); err != nil {
+			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
 
 		// Save the new list
 		if err := l.Save(todoFileName); err != nil {
