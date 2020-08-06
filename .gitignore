@@ -4,6 +4,6 @@
 gocli/ch1/wc/wc
 
 *.todo.json
-gocli/ch2/todo
+gocli/ch2/todo/todo
 
 gocli/ch3/mdp/mdp
