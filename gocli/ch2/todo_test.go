@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/andschneider/gocli/ch2/todo"
+	"github.com/andschneider/learn_go/gocli/ch2/todo"
 )
 
 // TestAdd tests the Add method of the List type

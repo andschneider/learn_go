@@ -1,3 +1,3 @@
-module github.com/andschneider/bhg/ch3/shodan
+module github.com/andschneider/learn_go/black-hat-go/ch3/shodan
 
 go 1.14

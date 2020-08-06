@@ -8,7 +8,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/andschneider/gocli/ch2/todo"
+	"github.com/andschneider/learn_go/gocli/ch2/todo"
 )
 
 // Default file name

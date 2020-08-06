@@ -1,4 +1,4 @@
-module github.com/andschneider/gocli/ch3/mdp
+module github.com/andschneider/learn_go/gocli/ch3/mdp
 
 go 1.13
 
